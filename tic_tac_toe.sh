@@ -26,3 +26,15 @@ function checkSymbol()
 	echo You have got $player_symbol symbol
 }
 
+function toss()
+{
+	toss=$(( RANDOM % 2 ))
+	if [[ $toss -eq 1 ]]
+	then
+		echo Player plays first
+	else
+		echo Computer plays first
+	fi
+}
+
+
