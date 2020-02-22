@@ -5,6 +5,9 @@ echo -----WELCOME to the world of TIC TAC TOE-----
 #constant
 TOTAL_CELL=9
 
+#variables
+winner=0
+switchPlayer=0
 
 declare -a board
 
@@ -47,5 +50,61 @@ function display_board()
 		done
 		echo ""
 	done
+}
+
+function winningCondition()
+{
+	#checking ROW wise WIN
+	for (( i=1; i<=$TOTAL_CELL;  i=$(( $i+3 )) ))
+	do
+		if [[ ${board[$i]} == ${board[ $i + 1 ]} && ${board[ $i + 1 ]} == ${board[ $i + 2 ]} ]]
+		then
+			winner=1
+		fi
+	done
+
+	#checking COLUMN wise WIN
+	for (( i=1; i<=3; i++ ))
+	do
+      if [[ ${board[$i]} == ${board[$i+3]} && ${board[$i+3]} == ${board[$i+6]} ]]
+      then
+         winner=1
+      fi
+   done
+
+	#checking DIAGONAL1 wise WIN
+	if [[ ${board[1]} == ${board[5]} && ${board[5]} == ${board[9]} ]]
+	then
+		winner=1
+	fi
+
+	#checking DIAGONAL2 wise WIN
+	if [[ ${board[3]} == ${board[5]} && ${board[5]} == ${board[7]} ]]
+	then
+		winner=1
+	fi
+}
+
+function switchPlayer()
+{
+	if [[ $switchPlayer == 0 ]]
+	then
+		switchPlayer=1
+		echo switch player is $switchPlayer
+	fi
+}
+
+function checkEmpty()
+{
+	if [[ $position -ge 1 && $position -le 9 ]]
+	then
+		if [[ ${board[$i]} == '.' ]]
+		then
+			board[$i]=$player_symbol
+			echo ${board[$i]}
+		else
+			echo "Position is already filled"
+		fi
+	fi
 }
 
