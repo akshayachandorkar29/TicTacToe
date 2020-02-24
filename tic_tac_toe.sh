@@ -208,6 +208,19 @@ function take_center()
 	fi
 }
 
+function take_available_sides()
+{
+	for(( m=2; m<=8; m+=2 ))
+	do
+		if [[ ${board[$m]} == "." ]]
+		then
+			${board[$m]}=$computer_symbol
+			(( count++ ))
+			break
+		fi
+	done
+}
+
 function check_game_status()
 {
 	if [[ $winner == 1 ]]
@@ -228,4 +241,3 @@ function check_game_status()
 #	check_game_status
 #done
 
-take_center
