@@ -134,6 +134,27 @@ function check_is_empty()
 	fi
 }
 
+function playing_computer_to_win()
+{
+	for (( j=1; j<=$TOTAL_CELL; j++ ))
+	do
+		if [[ ${board[$j]} == "." ]]
+		then
+			${board[$j]} = $computer_symbol
+			winning_condition $computer_symbol
+			if [[ $winner -eq 1 ]]
+			then
+				display_board
+				echo "Winner is $computer_symbol"
+				exit
+			else
+				${board[$j]}="."
+			fi
+		fi
+	done
+}
+
+
 function check_game_status()
 {
 	if [[ $winner == 1 ]]
@@ -146,16 +167,12 @@ function check_game_status()
 	fi
 }
 
-resetting_board
-check_symbol
-toss
-display_board
 
-while [[ $count -ne $TOTAL_CELL ]]
-do
-	switch_player
-	display_board
-	check_game_status
-done
+#while [[ $count -ne $TOTAL_CELL ]]
+#do
+#	switch_player
+#	display_board
+#	check_game_status
+#done
 
 
