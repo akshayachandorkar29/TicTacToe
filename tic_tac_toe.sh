@@ -9,29 +9,38 @@ TOTAL_CELL=9
 winner=0
 switchPlayer=0
 count=0
-
-player_symbol="O"
-computer_symbol="X"
+player_symbol=O
+computer_symbol=X
 turnChange=$player_symbol
+temp=$turnChange
+temp_player=O
+temp_computer=O
+
 block=0
+position=1
 
 declare -a board
 
+#function for setting the board
 function resetting_board()
 {
 	board=(. . . . . . . . . .)
 }
 
+#this function generates a random number and assign symbol X or O to the player
 function check_symbol()
 {
 	random_number=$(( RANDOM % 2 ))
 	if [[ $random_number -eq 0 ]]
 	then
-		player_symbol="X"
-		computer_symbol="O"
+		player_symbol=X
+		temp_player=$player_symbol
+		computer_symbol=O
+		temp_computer=$computer_symbol
 	fi
 }
 
+#toss function to check who playes first
 function toss()
 {
 	toss=$(( RANDOM % 2 ))
@@ -39,21 +48,23 @@ function toss()
 	then
 		switchPlayer=0
 		echo Player plays first
-	else
-		switchPlayer=1
-		echo Computer plays first
 	fi
 }
 
+#this function will print the board
 function display_board()
 {
+	echo "- - - - - - -"
 	echo "| ${board[1]} | ${board[2]} | ${board[3]} |"
 	echo "- - - - - - -"
 	echo "| ${board[4]} | ${board[5]} | ${board[6]} |"
 	echo "- - - - - - -"
 	echo "| ${board[7]} | ${board[8]} | ${board[9]} |"
+	echo "- - - - - - -"
+	echo "-------------------------------------------------------------------------------"
 }
 
+#this function will switch the turns of user and computer
 function switch_player()
 {
    if [[ $switchPlayer == 0 ]]
@@ -65,7 +76,7 @@ function switch_player()
 	winning_condition $turnChange
 }
 
-
+#if switch_player returns 0 player will play the game
 function player_playing()
 {
    echo "PLAYER'S TURN"
@@ -76,16 +87,20 @@ function player_playing()
 	switchPlayer=1
 }
 
+#this function gets called if switch_player generates 1
 function computer_playing()
 {
    echo "COMPUTER'S TURN"
-   position=$(( RANDOM % 9 + 1 ))
-   turnChange=$computer_symbol
-   check_is_empty
-   board[$position]=$computer_symbol
-   switchPlayer=0
+	computer_playing_to_win
+	computer_playing_to_block
+	if [[ $block == 0 ]]
+	then
+		take_available_corners
+	fi
+	switchPlayer=0
 }
 
+#this function will check winning combinations
 function winning_condition()
 {
 	#checking ROW wise WIN
@@ -119,11 +134,12 @@ function winning_condition()
 	fi
 }
 
+#this function returns whether the row is empty or not to place the symbol
 function check_is_empty()
 {
 	if [[ $position -ge 1 && $position -le 9 ]]
 	then
-		if [[ ${board[$position]} == '.' ]]
+		if [[ ${board[$position]} == . ]]
 		then
 			echo $turnChange is placed at $position
 			(( count++ ))
@@ -137,50 +153,55 @@ function check_is_empty()
 	fi
 }
 
+#computer will traverse whole board to check if he can win
 function computer_playing_to_win()
 {
 	for (( j=1; j<=$TOTAL_CELL; j++ ))
 	do
-		if [[ ${board[$j]} == "." ]]
+		if [[ ${board[$j]} == . ]]
 		then
-			${board[$j]} = $computer_symbol
+			#computer will place the symbol and check if he can win
+			board[$j]=$computer_symbol
 			winning_condition $computer_symbol
 			if [[ $winner -eq 1 ]]
 			then
 				display_board
-				echo "Winner is $computer_symbol"
+				echo "WINNNER is COMPUTER"
+				#echo "Winner is $computer_symbol"
 				exit
 			else
-				${board[$j]}="."
+				board[$j]="."
 				block=0
 			fi
 		fi
 	done
 }
 
+#computer will check whether opponent wins by putting his symbol and observing winner value and block if winner is 1
 function computer_playing_to_block
 {
 	for (( k=1; k<=$TOTAL_CELL; k++ ))
 	do
-		if [[ ${board[$k]} == "." ]]
+		if [[ ${board[$k]} == . ]]
 		then
-			${board[$k]}=$player_symbol
+			board[$k]=$player_symbol
 			winning_condition $player_symbol
 			if [[ $winner -eq 1 ]]
 			then
-				${board[$k]}=$computer_symbol
+				board[$k]=$computer_symbol
 				winner=0
 				block=1
 				(( count++ ))
-				display_board
+				#display_board
 				break
 			else
-				${board[$k]}="."
+				board[$k]="."
 			fi
 		fi
 	done
 }
 
+#first computer will check for available corners
 function take_available_corners()
 {
 	for (( l=1; l<=$TOTAL_CELL; l=$l+2 ))
@@ -189,43 +210,59 @@ function take_available_corners()
 		then
 			l=$(( $l+2 ))
 		fi
-		if [[ ${board[$l]} == "." ]]
+		if [[ ${board[$l]} == . ]]
 		then
-			${board[$l]}=$computer_symbol
+			board[$l]=$computer_symbol
 			local center=1
 			(( count++ ))
 			break
 		fi
 	done
+	take_center
 }
 
+#if corner is not free, computer will go with center
 function take_center()
 {
-	local middle=$(( ($TOTAL_CELL + 1) / 2 ))
-	if [[ ${board[middle]} == $computer_symbol ]]
+	if [[ $center -ne 1 ]]
 	then
-		(( count++ ))
+		local middle=$(( ($TOTAL_CELL + 1) / 2 ))
+		if [[ ${board[middle]} == $computer_symbol ]]
+		then
+			(( count++ ))
+		else
+			take_available_sides
+		fi
 	fi
 }
 
+#if center is not free, computer places its symbol at any of the sides
 function take_available_sides()
 {
 	for(( m=2; m<=8; m+=2 ))
 	do
-		if [[ ${board[$m]} == "." ]]
+		if [[ ${board[$m]} == . ]]
 		then
-			${board[$m]}=$computer_symbol
+			board[$m]=$computer_symbol
 			(( count++ ))
 			break
 		fi
 	done
 }
 
+#this function will check the status of the game
 function check_game_status()
 {
 	if [[ $winner == 1 ]]
 	then
-		echo "Winner is $turnChange"
+		if [[ $temp == $temp_computer ]]
+		then
+			echo "WINNER is PLAYER"
+		else
+			echo "WINNER is COMPUTER"
+		fi
+		#echo "Winner is $a"
+		#echo "Winner is $turnChange"
 		exit
 	elif [[ $count -ge 9 ]]
 	then
@@ -233,11 +270,20 @@ function check_game_status()
 	fi
 }
 
+function game()
+{
+	resetting_board
+	check_symbol
+	toss
+	display_board
 
-#while [[ $count -ne $TOTAL_CELL ]]
-#do
-#	switch_player
-#	display_board
-#	check_game_status
-#done
+	while [[ $count -ne $TOTAL_CELL ]]
+	do
+		switch_player
+		display_board
+		#clear
+		check_game_status
+	done
+}
 
+game
