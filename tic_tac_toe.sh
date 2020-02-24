@@ -180,6 +180,24 @@ function computer_playing_to_block
 	done
 }
 
+function take_available_corners()
+{
+	for (( l=1; l<=$TOTAL_CELL; l=$l+2 ))
+	do
+		if [[ $l == 5 ]]
+		then
+			l=$(( $l+2 ))
+		fi
+		if [[ ${board[$l]} == "." ]]
+		then
+			${board[$l]}=$computer_symbol
+			local center=1
+			(( count++ ))
+			break
+		fi
+	done
+}
+
 function check_game_status()
 {
 	if [[ $winner == 1 ]]
@@ -200,3 +218,4 @@ function check_game_status()
 #	check_game_status
 #done
 
+take_available_corners
