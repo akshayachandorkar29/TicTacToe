@@ -9,6 +9,7 @@ TOTAL_CELL=9
 winner=0
 switchPlayer=0
 count=0
+
 player_symbol="O"
 computer_symbol="X"
 turnChange=$player_symbol
@@ -198,6 +199,15 @@ function take_available_corners()
 	done
 }
 
+function take_center()
+{
+	local middle=$(( ($TOTAL_CELL + 1) / 2 ))
+	if [[ ${board[middle]} == $computer_symbol ]]
+	then
+		(( count++ ))
+	fi
+}
+
 function check_game_status()
 {
 	if [[ $winner == 1 ]]
@@ -218,4 +228,4 @@ function check_game_status()
 #	check_game_status
 #done
 
-take_available_corners
+take_center
