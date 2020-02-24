@@ -12,6 +12,8 @@ count=0
 player_symbol="O"
 computer_symbol="X"
 turnChange=$player_symbol
+block=0
+
 declare -a board
 
 function resetting_board()
@@ -134,7 +136,7 @@ function check_is_empty()
 	fi
 }
 
-function playing_computer_to_win()
+function computer_playing_to_win()
 {
 	for (( j=1; j<=$TOTAL_CELL; j++ ))
 	do
@@ -149,11 +151,34 @@ function playing_computer_to_win()
 				exit
 			else
 				${board[$j]}="."
+				block=0
 			fi
 		fi
 	done
 }
 
+function computer_playing_to_block
+{
+	for (( k=1; k<=$TOTAL_CELL; k++ ))
+	do
+		if [[ ${board[$k]} == "." ]]
+		then
+			${board[$k]}=$player_symbol
+			winning_condition $player_symbol
+			if [[ $winner -eq 1 ]]
+			then
+				${board[$k]}=$computer_symbol
+				winner=0
+				block=1
+				(( count++ ))
+				display_board
+				break
+			else
+				${board[$k]}="."
+			fi
+		fi
+	done
+}
 
 function check_game_status()
 {
@@ -174,5 +199,4 @@ function check_game_status()
 #	display_board
 #	check_game_status
 #done
-
 
